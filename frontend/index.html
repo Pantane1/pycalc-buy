@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SciCalc Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #080c10;
+      --surface: #0d1117;
+      --surface2: #161b22;
+      --border: #21262d;
+      --accent: #c8ff00;         /* electric lime */
+      --accent2: #00d4ff;        /* cyan for secondary */
+      --danger: #ff4444;
+      --text: #e6edf3;
+      --text-dim: #7d8590;
+      --btn-bg: #161b22;
+      --btn-hover: #1c2128;
+      --btn-op: #1a2035;
+      --btn-fn: #0d1f0d;
+      --btn-eq: var(--accent);
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      background-image:
+        radial-gradient(ellipse at 20% 10%, rgba(200,255,0,0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 90%, rgba(0,212,255,0.04) 0%, transparent 50%);
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    header h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    header h1 span { color: var(--accent); }
+    header p {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* ── License badge ── */
+    #license-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      margin-top: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    #license-badge.active {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    #license-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+    }
+    #license-badge.active .dot { background: var(--accent); }
+
+    /* ── Calculator shell ── */
+    .calc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.02),
+        0 24px 80px rgba(0,0,0,0.6);
+    }
+
+    /* ── Display ── */
+    .display {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+    #expr {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      min-height: 18px;
+      word-break: break-all;
+      text-align: right;
+      max-width: 100%;
+    }
+    #result {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.6rem, 5vw, 2.2rem);
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-all;
+      text-align: right;
+      max-width: 100%;
+      transition: color 0.2s;
+    }
+    #result.error { color: var(--danger); font-size: 1rem; }
+
+    /* ── Buttons ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .btn {
+      background: var(--btn-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      padding: 14px 4px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, border-color 0.15s;
+      user-select: none;
+      text-align: center;
+      line-height: 1;
+    }
+    .btn:hover { background: var(--btn-hover); border-color: #30363d; }
+    .btn:active { transform: scale(0.94); }
+
+    .btn.op {
+      background: var(--btn-op);
+      color: var(--accent2);
+      font-weight: 600;
+    }
+    .btn.fn {
+      background: var(--btn-fn);
+      color: #7ec87e;
+      font-size: 0.72rem;
+    }
+    .btn.clear {
+      background: rgba(255,68,68,0.1);
+      color: var(--danger);
+      border-color: rgba(255,68,68,0.2);
+    }
+    .btn.eq {
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: 1rem;
+      grid-column: span 2;
+      border-color: var(--accent);
+    }
+    .btn.eq:hover { background: #d4ff1a; }
+    .btn.zero { grid-column: span 2; }
+
+    /* ── Mode toggle ── */
+    .mode-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 6px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+    .mode-btn.active {
+      background: var(--surface2);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ══════════════════════════════════════
+       PAYWALL MODAL
+    ══════════════════════════════════════ */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 380px;
+      padding: 28px 24px;
+      box-shadow: 0 32px 100px rgba(0,0,0,0.8);
+      transform: translateY(20px);
+      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .overlay.show .modal { transform: translateY(0); }
+
+    .modal-icon {
+      width: 48px; height: 48px;
+      background: rgba(200,255,0,0.08);
+      border: 1px solid rgba(200,255,0,0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+    }
+    .modal h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 6px;
+    }
+    .modal p.sub {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    /* Plan cards */
+    .plans {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .plan {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .plan:hover { border-color: #30363d; }
+    .plan.selected {
+      border-color: var(--accent);
+      background: rgba(200,255,0,0.04);
+    }
+    .plan .badge {
+      position: absolute;
+      top: -8px; right: 8px;
+      background: var(--accent);
+      color: #000;
+      font-size: 0.55rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .plan .price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+    .plan .price span { font-size: 0.75rem; color: var(--text-dim); font-weight: 400; }
+    .plan .label {
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Phone input */
+    .input-label {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+    .phone-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+    .phone-wrap:focus-within { border-color: var(--accent); }
+    .phone-prefix {
+      padding: 0 12px;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      border-right: 1px solid var(--border);
+      height: 44px;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+    #phone-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      padding: 0 12px;
+      height: 44px;
+    }
+
+    .pay-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.02em;
+    }
+    .pay-btn:hover { background: #d4ff1a; }
+    .pay-btn:active { transform: scale(0.98); }
+    .pay-btn:disabled {
+      background: var(--surface2);
+      color: var(--text-dim);
+      cursor: not-allowed;
+    }
+
+    .modal-status {
+      margin-top: 12px;
+      font-size: 0.74rem;
+      text-align: center;
+      min-height: 18px;
+      color: var(--text-dim);
+    }
+    .modal-status.ok { color: var(--accent); }
+    .modal-status.err { color: var(--danger); }
+
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.2rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Sci<span>Calc</span> Pro</h1>
+  <p>Scientific Calculator · M-Pesa Powered</p>
+  <div id="license-badge" onclick="showPaywall()">
+    <span class="dot"></span>
+    <span id="badge-text">No License · Tap to Unlock</span>
+  </div>
+</header>
+
+<div class="calc">
+  <!-- Display -->
+  <div class="display">
+    <div id="expr"></div>
+    <div id="result">0</div>
+  </div>
+
+  <!-- Deg / Rad -->
+  <div class="mode-row">
+    <button class="mode-btn active" id="deg-btn" onclick="setAngle('deg')">DEG</button>
+    <button class="mode-btn" id="rad-btn" onclick="setAngle('rad')">RAD</button>
+    <button class="mode-btn" id="inv-btn" onclick="toggleInv()">INV</button>
+  </div>
+
+  <!-- Buttons -->
+  <div class="grid">
+    <!-- Row 1: functions -->
+    <button class="btn fn" onclick="inputFn('sin(')">sin</button>
+    <button class="btn fn" onclick="inputFn('cos(')">cos</button>
+    <button class="btn fn" onclick="inputFn('tan(')">tan</button>
+    <button class="btn fn" onclick="inputFn('log(')">log</button>
+    <button class="btn fn" onclick="inputFn('ln(')">ln</button>
+
+    <!-- Row 2 -->
+    <button class="btn fn" id="inv1" onclick="inputFn('asin(')">asin</button>
+    <button class="btn fn" id="inv2" onclick="inputFn('acos(')">acos</button>
+    <button class="btn fn" id="inv3" onclick="inputFn('atan(')">atan</button>
+    <button class="btn fn" onclick="inputFn('sqrt(')">√</button>
+    <button class="btn fn" onclick="inputFn('^')">xʸ</button>
+
+    <!-- Row 3 -->
+    <button class="btn fn" onclick="inputFn('(')"> ( </button>
+    <button class="btn fn" onclick="inputFn(')')"> ) </button>
+    <button class="btn fn" onclick="inputFn('pi')">π</button>
+    <button class="btn fn" onclick="inputFn('e')">e</button>
+    <button class="btn fn" onclick="inputFn('!')">n!</button>
+
+    <!-- Row 4: numbers + ops -->
+    <button class="btn clear" onclick="clearAll()">AC</button>
+    <button class="btn op" onclick="deleteLast()">⌫</button>
+    <button class="btn op" onclick="inputFn('%')">%</button>
+    <button class="btn op" onclick="inputFn('/')">÷</button>
+    <button class="btn fn" onclick="inputFn('abs(')">|x|</button>
+
+    <button class="btn" onclick="inputNum('7')">7</button>
+    <button class="btn" onclick="inputNum('8')">8</button>
+    <button class="btn" onclick="inputNum('9')">9</button>
+    <button class="btn op" onclick="inputFn('*')">×</button>
+    <button class="btn fn" onclick="inputFn('ceil(')">⌈x⌉</button>
+
+    <button class="btn" onclick="inputNum('4')">4</button>
+    <button class="btn" onclick="inputNum('5')">5</button>
+    <button class="btn" onclick="inputNum('6')">6</button>
+    <button class="btn op" onclick="inputFn('-')">−</button>
+    <button class="btn fn" onclick="inputFn('floor(')">⌊x⌋</button>
+
+    <button class="btn" onclick="inputNum('1')">1</button>
+    <button class="btn" onclick="inputNum('2')">2</button>
+    <button class="btn" onclick="inputNum('3')">3</button>
+    <button class="btn op" onclick="inputFn('+')">+</button>
+    <button class="btn fn" onclick="inputFn('round(')">~x</button>
+
+    <button class="btn zero" onclick="inputNum('0')">0</button>
+    <button class="btn" onclick="inputNum('.')">.</button>
+    <button class="btn op" onclick="inputFn('E')">EXP</button>
+    <button class="btn eq" onclick="calculate()">=</button>
+  </div>
+</div>
+
+<!-- ══ Paywall Modal ══ -->
+<div class="overlay" id="overlay">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closePaywall()">✕</button>
+    <div class="modal-icon">🔐</div>
+    <h2>Unlock SciCalc Pro</h2>
+    <p class="sub">Pay once via M-Pesa and compute freely for your plan period. STK push will appear on your phone.</p>
+
+    <div class="plans">
+      <div class="plan selected" id="plan-weekly" onclick="selectPlan('weekly')">
+        <div class="price">$2 <span>/ week</span></div>
+        <div class="label">Weekly</div>
+      </div>
+      <div class="plan" id="plan-monthly" onclick="selectPlan('monthly')">
+        <div class="badge">Best Value</div>
+        <div class="price">$5 <span>/ month</span></div>
+        <div class="label">Monthly</div>
+      </div>
+    </div>
+
+    <div class="input-label">M-Pesa Phone Number</div>
+    <div class="phone-wrap">
+      <div class="phone-prefix">🇰🇪 +254</div>
+      <input id="phone-input" type="tel" placeholder="7XX XXX XXX" maxlength="9"/>
+    </div>
+
+    <button class="pay-btn" id="pay-btn" onclick="initiatePayment()">
+      Pay with M-Pesa
+    </button>
+    <div class="modal-status" id="modal-status"></div>
+  </div>
+</div>
+
+<script>
+  // ── State ──────────────────────────────────────────────────────────────────
+  const API = ""; // same origin; change to "http://localhost:3000" for dev
+  let expression = "";
+  let angleMode = "deg"; // deg | rad
+  let invMode = false;
+  let license = null;        // { plan, expiresAt }
+  let selectedPlan = "weekly";
+  let pollInterval = null;
+  let pendingCheckout = null;
+
+  // ── License persistence ────────────────────────────────────────────────────
+  function saveLicense(lic) {
+    license = lic;
+    try { sessionStorage.setItem("scicalc_lic", JSON.stringify(lic)); } catch(_){}
+    updateBadge();
+  }
+  function loadLicense() {
+    try {
+      const raw = sessionStorage.getItem("scicalc_lic");
+      if (raw) {
+        const lic = JSON.parse(raw);
+        if (new Date() < new Date(lic.expiresAt)) {
+          license = lic;
+        } else {
+          sessionStorage.removeItem("scicalc_lic");
+        }
+      }
+    } catch(_){}
+    updateBadge();
+  }
+  function updateBadge() {
+    const badge = document.getElementById("license-badge");
+    const text = document.getElementById("badge-text");
+    if (license) {
+      badge.classList.add("active");
+      const exp = new Date(license.expiresAt).toLocaleDateString();
+      text.textContent = `✓ ${license.plan.charAt(0).toUpperCase()+license.plan.slice(1)} · Expires ${exp}`;
+    } else {
+      badge.classList.remove("active");
+      text.textContent = "No License · Tap to Unlock";
+    }
+  }
+
+  // ── Calculator logic ───────────────────────────────────────────────────────
+  function inputNum(v) {
+    expression += v;
+    document.getElementById("expr").textContent = expression;
+    document.getElementById("result").textContent = expression;
+    document.getElementById("result").classList.remove("error");
+  }
+
+  function inputFn(v) {
+    expression += v;
+    document.getElementById("expr").textContent = expression;
+    document.getElementById("result").textContent = expression;
+    document.getElementById("result").classList.remove("error");
+  }
+
+  function clearAll() {
+    expression = "";
+    document.getElementById("expr").textContent = "";
+    document.getElementById("result").textContent = "0";
+    document.getElementById("result").classList.remove("error");
+  }
+
+  function deleteLast() {
+    expression = expression.slice(0, -1);
+    document.getElementById("expr").textContent = expression;
+    document.getElementById("result").textContent = expression || "0";
+  }
+
+  function setAngle(mode) {
+    angleMode = mode;
+    document.getElementById("deg-btn").classList.toggle("active", mode === "deg");
+    document.getElementById("rad-btn").classList.toggle("active", mode === "rad");
+  }
+
+  function toggleInv() {
+    invMode = !invMode;
+    document.getElementById("inv-btn").classList.toggle("active", invMode);
+  }
+
+  function factorial(n) {
+    if (n < 0 || !Number.isInteger(n)) return NaN;
+    if (n === 0 || n === 1) return 1;
+    let r = 1;
+    for (let i = 2; i <= n; i++) r *= i;
+    return r;
+  }
+
+  function evaluate(expr) {
+    // Replace symbolic constants
+    let e = expr
+      .replace(/pi/g, "Math.PI")
+      .replace(/\be\b/g, "Math.E")
+      .replace(/\^/g, "**")
+      .replace(/%/g, "/100");
+
+    // Trig functions with angle conversion
+    const toRad = angleMode === "deg" ? "(Math.PI/180)*" : "";
+    e = e
+      .replace(/sin\(/g,  `Math.sin(${toRad}`)
+      .replace(/cos\(/g,  `Math.cos(${toRad}`)
+      .replace(/tan\(/g,  `Math.tan(${toRad}`)
+      .replace(/asin\(/g, `(${angleMode === "deg" ? "(180/Math.PI)*" : ""}Math.asin(`)
+      .replace(/acos\(/g, `(${angleMode === "deg" ? "(180/Math.PI)*" : ""}Math.acos(`)
+      .replace(/atan\(/g, `(${angleMode === "deg" ? "(180/Math.PI)*" : ""}Math.atan(`)
+      .replace(/log\(/g,  "Math.log10(")
+      .replace(/ln\(/g,   "Math.log(")
+      .replace(/sqrt\(/g, "Math.sqrt(")
+      .replace(/abs\(/g,  "Math.abs(")
+      .replace(/ceil\(/g, "Math.ceil(")
+      .replace(/floor\(/g,"Math.floor(")
+      .replace(/round\(/g,"Math.round(");
+
+    // Factorial: number!
+    e = e.replace(/(\d+)!/g, (_, n) => factorial(parseInt(n)));
+
+    // eslint-disable-next-line no-new-func
+    return Function('"use strict"; return (' + e + ')')();
+  }
+
+  function calculate() {
+    if (!license) {
+      showPaywall();
+      return;
+    }
+    if (!expression) return;
+
+    try {
+      const val = evaluate(expression);
+      const formatted = Number.isFinite(val)
+        ? (Number.isInteger(val) ? val.toString() : parseFloat(val.toFixed(10)).toString())
+        : val.toString();
+
+      document.getElementById("expr").textContent = expression + " =";
+      document.getElementById("result").textContent = formatted;
+      document.getElementById("result").classList.remove("
