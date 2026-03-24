@@ -1,83 +1,158 @@
-# SciCalc Pro — Scientific Calculator with Lipana M-Pesa Paywall
+# SciCalc Pro
 
-A dark cinematic scientific calculator gated behind M-Pesa payments via **Lipana.dev**.
-Users pay **KES 260/week** or **KES 650/month** before the `=` button computes results.
+<div align="center">
 
----
+![SciCalc Pro](https://img.shields.io/badge/SciCalc-Pro-c8ff00?style=for-the-badge&labelColor=0d1117)
+![License](https://img.shields.io/badge/License-Apache_2.0-blue?style=for-the-badge&labelColor=0d1117)
+![Node](https://img.shields.io/badge/Node.js-25.x-339933?style=for-the-badge&logo=node.js&logoColor=white&labelColor=0d1117)
+![Deployed on Vercel](https://img.shields.io/badge/Frontend-Vercel-black?style=for-the-badge&logo=vercel&labelColor=0d1117)
+![Backend on Render](https://img.shields.io/badge/Backend-Render-46E3B7?style=for-the-badge&logo=render&labelColor=0d1117)
 
-## 📁 Project Structure
+**A dark cinematic scientific calculator gated behind M-Pesa payments via Lipana.dev**
 
-```
-sci-calc/
-├── backend/
-│   ├── server.js          ← Express + @lipana/sdk STK Push & webhook
-│   ├── package.json
-│   └── .env.example       ← Copy to .env and fill your Lipana keys
-└── frontend/
-    └── index.html         ← Scientific calculator UI (served by backend)
-```
+[🚀 Live Demo](https://pycalc-buy.vercel.app) · [📦 Backend](https://pycalc-buy.onrender.com) · [🐛 Report Bug](https://github.com/Pantane1/pycalc-buy/issues)
+
+</div>
 
 ---
 
-## 🚀 Setup
+## ✨ Overview
 
-### 1. Install dependencies
-```bash
-cd backend
-npm install
-```
+SciCalc Pro is a fully functional scientific calculator with a built-in M-Pesa paywall. Users must purchase a license via STK Push before the `=` button computes any result. Once paid, the calculator unlocks for the duration of their plan.
 
-### 2. Configure environment
-```bash
-cp .env.example .env
-```
+Built with a dark cinematic aesthetic — electric lime accents, JetBrains Mono typography, and smooth animations.
 
-Open `.env` and fill in your Lipana keys:
+---
 
-| Variable | Where to get it |
+## 📸 Preview
+
+| Calculator | Paywall Modal |
 |---|---|
-| `LIPANA_SECRET_KEY` | Lipana dashboard → API Keys → Secret Key |
-| `LIPANA_WEBHOOK_SECRET` | Lipana dashboard → Webhooks → Webhook Secret |
-| `LIPANA_ENV` | `sandbox` for testing, `production` for live |
-
-### 3. Set your webhook URL in Lipana Dashboard
-In your Lipana dashboard under **Webhooks**, set the URL to:
-```
-https://YOUR_DOMAIN/api/lipana/webhook
-```
-
-For local dev, expose localhost using ngrok:
-```bash
-npx ngrok http 3000
-# Use the HTTPS URL → https://xxxx.ngrok.io/api/lipana/webhook
-```
-
-### 4. Start the server
-```bash
-npm run dev   # Development (auto-restart)
-npm start     # Production
-```
-
-Visit → `http://localhost:3000`
+| Dark UI with full scientific functions | M-Pesa STK Push plan selector |
 
 ---
 
 ## 💳 Payment Flow
 
 ```
-User presses = → No license detected → Paywall modal opens
-  ↓
-User selects plan (Weekly / Monthly) + enters phone number
-  ↓
-Frontend POST /api/pay → server calls lipana.transactions.initiateStkPush()
-  ↓
-STK Push appears on user's phone → user enters M-Pesa PIN
-  ↓
-Lipana fires webhook → POST /api/lipana/webhook → license activated
-  ↓
-Frontend polls /api/pay/status/:txId/:phone every 5s
-  ↓
-Status = success → modal closes → calculator fully unlocked ✓
+User types calculation → presses = → no license → paywall modal opens
+        ↓
+Selects plan (Weekly / Monthly) + enters phone number
+        ↓
+Backend sends STK Push via Lipana.dev → user enters M-Pesa PIN
+        ↓
+Lipana webhook fires → license activated server-side
+        ↓
+Frontend polls every 5s → detects success → calculator unlocks ✅
+```
+
+---
+
+## 🧮 Calculator Features
+
+- **Trigonometry** — sin, cos, tan, asin, acos, atan
+- **Angle modes** — DEG / RAD / INV toggle
+- **Logarithms** — log₁₀, ln
+- **Powers & roots** — xʸ, √
+- **Constants** — π, e
+- **Extra functions** — n!, |x|, ⌈x⌉, ⌊x⌋, round, %
+- **Scientific notation** — EXP
+- **Keyboard support** — numbers, operators, Enter, Backspace, Escape
+- **Mobile responsive** — works on any screen size
+
+---
+
+## 🏗️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Vanilla HTML, CSS, JavaScript |
+| Backend | Node.js, Express.js |
+| Payments | Lipana.dev (`@lipana/sdk`) |
+| Frontend Hosting | Vercel |
+| Backend Hosting | Render |
+| Version Control | GitHub |
+
+---
+
+## 📁 Project Structure
+
+```
+pycalc-buy/
+├── backend/
+│   ├── server.js          ← Express API + Lipana STK Push & webhook
+│   ├── package.json
+│   ├── railway.json       ← Railway deploy config (optional)
+│   └── .env.example       ← Environment variable template
+├── frontend/
+│   ├── index.html         ← Full calculator UI
+│   ├── favicon.ico        ← App favicon
+│   └── vercel.json        ← Vercel deploy config
+├── SECURITY.md
+├── PRIVACY.md
+├── CHANGELOG.md
+└── README.md
+```
+
+---
+
+## 🚀 Local Setup
+
+### Prerequisites
+- Node.js 18+
+- A [Lipana.dev](https://lipana.dev) account with API keys
+
+### 1. Clone the repo
+```bash
+git clone https://github.com/Pantane1/pycalc-buy.git
+cd pycalc-buy/backend
+```
+
+### 2. Install dependencies
+```bash
+npm install
+```
+
+### 3. Configure environment
+```bash
+cp .env.example .env
+```
+
+| Variable | Description |
+|---|---|
+| `LIPANA_SECRET_KEY` | Lipana dashboard → API Keys → Secret Key |
+| `LIPANA_WEBHOOK_SECRET` | Lipana dashboard → Webhooks → Secret |
+| `LIPANA_ENV` | `sandbox` for testing, `production` for live |
+| `PORT` | Server port (default: 3000) |
+
+### 4. Start the server
+```bash
+npm run dev
+```
+
+Visit → `http://localhost:3000`
+
+---
+
+## 🌍 Deployment
+
+### Backend → Render
+1. Go to [render.com](https://render.com) → New Web Service
+2. Connect `pycalc-buy` repo → set Root Directory to `backend`
+3. Build Command: `npm install` · Start Command: `node server.js`
+4. Add environment variables from `.env`
+5. Deploy → copy your Render URL
+
+### Frontend → Vercel
+1. Update `const API = "https://your-render-url.onrender.com"` in `frontend/index.html`
+2. Go to [vercel.com](https://vercel.com) → New Project → import repo
+3. Set Root Directory to `frontend`
+4. Deploy → live at `https://pycalc-buy.vercel.app`
+
+### Webhook
+In your Lipana dashboard set webhook URL to:
+```
+https://pycalc-buy.onrender.com/api/lipana/webhook
 ```
 
 ---
@@ -86,36 +161,37 @@ Status = success → modal closes → calculator fully unlocked ✓
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/license/:phone` | Check if phone has active license |
-| `POST` | `/api/pay` | Initiate STK Push via Lipana |
-| `POST` | `/api/lipana/webhook` | Lipana payment result callback |
+| `GET` | `/api/license/:phone` | Check active license |
+| `POST` | `/api/pay` | Initiate STK Push |
+| `POST` | `/api/lipana/webhook` | Lipana payment callback |
 | `GET` | `/api/pay/status/:txId/:phone` | Poll payment result |
 
 ---
 
-## 🧮 Calculator Features
+## 🛡️ Security
 
-- Trig: sin, cos, tan, asin, acos, atan — DEG/RAD/INV modes
-- Logarithms: log₁₀, ln
-- Powers & roots: xʸ, √
-- Constants: π, e
-- Factorial n!, absolute value, ceil, floor, round
-- Scientific notation EXP
-- Percentage, parentheses
-- Full keyboard support (numbers, operators, Enter, Backspace, Escape)
+See [SECURITY.md](./SECURITY.md) for the vulnerability reporting policy.
+
+All payment processing is handled by Lipana.dev. No card or PIN data ever touches this server. Webhook payloads are verified via `x-lipana-signature` before processing.
 
 ---
 
-## ⚠️ Production Notes
+## 📜 License
 
-1. **Replace in-memory license store** with Firestore (you have it in Auto-Link v2 already)
-2. **Pricing**: KES 260/week and KES 650/month are estimates — set exact amounts in your Lipana dashboard
-3. **HTTPS required** for Lipana webhooks in production
-4. The `@lipana/sdk` handles all auth internally — no token generation needed
+Distributed under the Apache 2.0 License. See [LICENSE](./LICENSE) for more information.
 
 ---
 
-## 🧪 Sandbox Testing
+## 👤 Author
 
-Set `LIPANA_ENV=sandbox` in `.env`.  
-Use the test phone numbers and PIN from your Lipana sandbox dashboard to simulate full payment flows.
+**Wamuhu Martin** (Pantane1)
+
+- Portfolio: [wamuhu-martin.vercel.app](https://wamuhu-martin.vercel.app)
+- Designs: [pantane1.github.io/Designs.](https://pantane1.github.io/Designs./)
+- GitHub: [@Pantane1](https://github.com/Pantane1)
+
+---
+
+<div align="center">
+Made in Nairobi 🇰🇪 · Powered by M-Pesa
+</div>
