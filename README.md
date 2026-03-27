@@ -10,7 +10,7 @@
 
 **A dark cinematic scientific calculator gated behind M-Pesa payments via Lipana.dev**
 
-[🚀 Live Demo](https://pycalc-buy.vercel.app) · [📦 Backend](https://pycalc-buy.onrender.com) · [🐛 Report Bug](https://github.com/Pantane1/pycalc-buy/issues)
+[🚀 Live](https://pycalc-buy.vercel.app) · [📦 Backend](https://pycalc-buy.onrender.com) · [🐛 Report Bug](https://github.com/Pantane1/pycalc-buy/issues)
 
 </div>
 
