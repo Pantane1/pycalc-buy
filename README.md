@@ -189,9 +189,18 @@ Distributed under the Apache 2.0 License. See [LICENSE](./LICENSE) for more info
 - Portfolio: [wamuhu-martin.vercel.app](https://wamuhu-martin.vercel.app)
 - Designs: [pantane1.github.io/Designs.](https://pantane1.github.io/Designs./)
 - GitHub: [@Pantane1](https://github.com/Pantane1)
+- 
+<p align="center">
+  <a href="#"><img src="https://github.com/Pantane1/nf/blob/main/public/ph.png" alt="ph-logo">
+</p>
+
+<p align="center">
+  <a href="#"><img src="http://readme-typing-svg.herokuapp.com?color=ACAF50&center=true&vCenter=true&multiline=false&lines=Built+Different" alt="pantane">
+</p>
 
 ---
 
 <div align="center">
 Made in Nairobi 🇰🇪 · Powered by M-Pesa
 </div>
+
