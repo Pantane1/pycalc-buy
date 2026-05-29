@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, "../frontend")));
 // ─── Initialize Lipana SDK ────────────────────────────────────────────────────
 const lipana = new Lipana({
   apiKey: process.env.LIPANA_SECRET_KEY,
-  environment: process.env.LIPANA_ENV || "sandbox", // "sandbox" | "production"
+  environment: process.env.LIPANA_ENV || "production", 
 });
 
 // ─── In-memory license store (swap with Firestore in production) ──────────────
@@ -149,6 +149,6 @@ app.get("/api/pay/status/:transactionId/:phone", (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 SciCalc server → http://localhost:${PORT}`);
-  console.log(`🔑 Lipana env: ${process.env.LIPANA_ENV || "sandbox"}`);
+  console.log(`🔑 Lipana env: ${process.env.LIPANA_ENV || "production"}`);
 });
     
